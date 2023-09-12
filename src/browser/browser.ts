@@ -135,7 +135,7 @@ export class Browser {
       launcherOptions.executablePath = this.config.chromeBin;
     }
 
-    launcherOptions.headless = !this.config.headed;
+    launcherOptions.headless = !this.config.headed ? "new" : false;
 
     return launcherOptions;
   }
@@ -339,12 +339,20 @@ export class Browser {
                * dashboard-row exists only in rows.
                */
               const panelCount = document.querySelectorAll('[data-panelId]').length;
-              const totalPanelsRendered = document.querySelectorAll('.panel-content').length + document.querySelectorAll('.dashboard-row').length;
-              return totalPanelsRendered === panelCount;
+              const panelsRendered = document.querySelectorAll('[class$=\'panel-content\']')
+              let panelsRenderedCount = 0
+              panelsRendered.forEach((value: Element) => {
+                if (value.childElementCount > 0) {
+                  panelsRenderedCount++
+                }
+              })
+
+              const totalPanelsRendered = panelsRenderedCount + document.querySelectorAll('.dashboard-row').length;
+              return totalPanelsRendered >= panelCount;
             }
 
             const panelCount = document.querySelectorAll('.panel').length || document.querySelectorAll('.panel-container').length;
-            return (window as any).panelsRendered >= panelCount;
+            return (window as any).panelsRendered >= panelCount || (window as any).panelsRendered === undefined;
           },
           {
             timeout: options.timeout * 1000,
